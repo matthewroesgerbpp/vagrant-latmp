@@ -18,12 +18,12 @@ source /vagrant/bootstrap/functions.sh
 # source /vagrant/bootstrap/http.sh
 # source /vagrant/bootstrap/tomcat.sh
 # source /vagrant/bootstrap/node.sh
+# source /vagrant/bootstrap/php.sh
 
 # In-progress:
-source /vagrant/bootstrap/php.sh
+source /vagrant/bootstrap/phpmyadmin.sh
 
 # Not finished:
-# source /vagrant/bootstrap/phpmyadmin.sh
 # source /vagrant/bootstrap/composer.sh
 # source /vagrant/bootstrap/ruby.sh
 # source /vagrant/bootstrap/mailcatcher.sh

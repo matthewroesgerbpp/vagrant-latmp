@@ -46,21 +46,23 @@ sudo yum --assumeyes install php "${PHP_MODULES[@]/#/php-}"
 sudo systemctl enable php-fpm
 sudo systemctl start php-fpm
 
+# Use the develpment configuration file (only applicable to php >= 7):
+cp --force /usr/share/doc/php-*/php.ini-development /etc/php.ini
+
 # Easy access for vagrant user:
 sudo chown vagrant:vagrant /etc/php.ini
 
-# Use the develpment configuration file (only applicable to php >= 7):
-cp --force /usr/share/doc/php-*/php.ini-development /etc/php.ini
-sed --in-place "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php.ini
-sed --in-place "s/display_errors = .*/display_errors = On/" /etc/php.ini
-sed --in-place "s#;date\.timezone.*#date\.timezone = ${PHP_TIMEZONE}#g" /etc/php.ini # Using `#` as delim.
-sed --in-place "s/memory_limit.*/memory_limit = ${PHP_MEMORY_LIMIT}M/g" /etc/php.ini
-sed --in-place "s/max_execution_time.*/max_execution_time = ${PHP_MAX_EXECUTION_TIME}/g" /etc/php.ini
+# Update php settings (`sudo` required as `sed` writes a temp file, thus the need for root privs):
+sudo sed --in-place "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php.ini
+sudo sed --in-place "s/display_errors = .*/display_errors = On/" /etc/php.ini
+sudo sed --in-place "s#;date\.timezone.*#date\.timezone = ${PHP_TIMEZONE}#g" /etc/php.ini # Using `#` as delim.
+sudo sed --in-place "s/memory_limit.*/memory_limit = ${PHP_MEMORY_LIMIT}M/g" /etc/php.ini
+sudo sed --in-place "s/max_execution_time.*/max_execution_time = ${PHP_MAX_EXECUTION_TIME}/g" /etc/php.ini
 
 # If not using root as main user:
-# if [ -d /var/lib/php/session ]; then
-#   chown -R vagrant: /var/lib/php/session
-# fi
+if [ -d /var/lib/php/session ]; then
+  chown -R vagrant:vagrant /var/lib/php/session
+fi
 
 # Check the installed version and available extensions:
 php --version
