@@ -8,10 +8,10 @@ MESSAGE "Installing GNU nano"
 yum --assumeyes install nano
 
 # Create and/or empty file:
-:> /etc/httpd/conf.d/http.conf
+:> /home/vagrant/.nanorc
 
 # Customizations:
-cat << "EOF" > ~/.nanorc
+cat << "EOF" > /home/vagrant/.nanorc
 # See /etc/nanorc for more options.
 set nowrap
 set tabsize 4

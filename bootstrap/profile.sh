@@ -10,9 +10,9 @@ yum --assumeyes install \
   curl
 
 # Create and/or empty this file:
-:> ~/.gitconfig_vagrant
+:> /home/vagrant/.gitconfig_vagrant
 
-cat << "EOF" > ~/.gitconfig_vagrant
+cat << "EOF" > /home/vagrant/.gitconfig_vagrant
 [alias]
   aliases = config --get-regexp alias
   amend = commit -a --amend
@@ -82,38 +82,38 @@ cat << "EOF" > ~/.gitconfig_vagrant
 EOF
 
 # User name and email:
-git config --global user.name "${GIT_CONFIG_NAME}"
-git config --global user.email "${GIT_CONFIG_EMAIL}"
+sudo -u vagrant git config --global user.name "${GIT_CONFIG_NAME}"
+sudo -u vagrant git config --global user.email "${GIT_CONFIG_EMAIL}"
 
 # Include custom config:
-git config --global include.path "~/.gitconfig_vagrant"
+sudo -u vagrant git config --global include.path "~/.gitconfig_vagrant"
 
 # Create and/or empty this file:
-:> ~/.git-prompt.sh
+:> /home/vagrant/.git-prompt.sh
 
 curl \
   --silent \
   --show-error \
   --location \
   https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh \
-  --output ~/.git-prompt.sh
+  --output /home/vagrant/.git-prompt.sh
 
 # Create and/or empty file:
-:> ~/.dircolors
+:> /home/vagrant/.dircolors
 
 curl \
   --silent \
   --show-error \
   --location \
   https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS \
-  --output ~/.dircolors
+  --output /home/vagrant/.dircolors
 
 # Create and/or empty this file:
-:> ~/.bash_vagrant
+:> /home/vagrant/.bash_vagrant
 
-cat << "EOF" > ~/.bash_vagrant
+cat << "EOF" > /home/vagrant/.bash_vagrant
 # https://github.com/mhulse/dotfizzles
-eval $(dircolors -b ~/.dircolors)
+eval $(dircolors -b /home/vagrant/.dircolors)
 alias ls="command ls --color=always -h"
 alias lss="ls -s | sort -n"
 alias l="ls -lF"
@@ -132,26 +132,23 @@ export HISTTIMEFORMAT="%a %h %d - %r "
 shopt -s histappend
 export VISUAL="nano"
 export EDITOR="nano"
-source ~/.git-prompt.sh
+source /home/vagrant/.git-prompt.sh
 PROMPT_COMMAND='__git_ps1 "\u@\h:\w" "\\\$ "'
 EOF
 
 # Create file if it does not exist:
-touch ~/.bash_profile
+touch /home/vagrant/.bash_profile
 
 # Add source line if it does not already exist:
 grep \
   --quiet --fixed-strings \
-  'source ~/.bash_vagrant' ~/.bash_profile \
-  || echo 'source ~/.bash_vagrant' >> ~/.bash_profile
-
-# Reload profile:
-source ~/.bash_profile
+  'source /home/vagrant/.bash_vagrant' /home/vagrant/.bash_profile \
+  || echo 'source /home/vagrant/.bash_vagrant' >> /home/vagrant/.bash_profile
 
 # Create and/or empty this file:
-:> ~/.inputrc_vagrant
+:> /home/vagrant/.inputrc_vagrant
 
-cat << "EOF" > ~/.inputrc_vagrant
+cat << "EOF" > /home/vagrant/.inputrc_vagrant
 # READLINE CONFIGURATION FILE
 # Reload from CLI: bind -f ~/.inputrc
 # This file is not meant to be sourced.
@@ -173,10 +170,10 @@ TAB: menu-complete
 EOF
 
 # Create file if it does not exist:
-touch ~/.inputrc
+touch /home/vagrant/.inputrc
 
 # Add include line if it does not already exist:
 grep \
   --quiet --fixed-strings \
-  '$include ~/.inputrc_vagrant' ~/.inputrc \
-  || echo '$include ~/.inputrc_vagrant' >> ~/.inputrc
+  '$include ~/.inputrc_vagrant' /home/vagrant/.inputrc \
+  || echo '$include ~/.inputrc_vagrant' >> /home/vagrant/.inputrc
