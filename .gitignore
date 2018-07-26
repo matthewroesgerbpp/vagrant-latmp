@@ -79,4 +79,3 @@ sitemap.xml.gz*~
 /node
 .idea/
 .vagrant/
-test.sh

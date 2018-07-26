@@ -5,10 +5,13 @@ UPDATE
 MESSAGE "Installing Apache HTTP Server"
 
 # Install Apache:
-yum --assumeyes install httpd
+sudo yum --assumeyes install httpd
 
 # Create and/or empty file:
-:> /etc/httpd/conf.d/http.conf
+sudo truncate --size=0 /etc/httpd/conf.d/http.conf
+
+# Easy access for vagrant user:
+sudo chown vagrant:vagrant /etc/httpd/conf.d/http.conf
 
 # Write conf data:
 cat << "EOF" > /etc/httpd/conf.d/http.conf
@@ -29,11 +32,14 @@ cat << "EOF" > /etc/httpd/conf.d/http.conf
 </VirtualHost>
 EOF
 
+# Vagrant shared folders should have done this already:
+sudo chown -R vagrant:vagrant /var/www
+
 # Remove existing test site directory (if it exists):
 rm --recursive --force /var/www/html/test
 
 # Create the test site directory:
-mkdir /var/www/html/test
+mkdir --parents /var/www/html/test
 
 # Create an index file:
 cat << "EOF" > /var/www/html/test/index.php
@@ -53,7 +59,7 @@ EOF
 echo "<?=phpinfo()?>" > /var/www/html/test/phpinfo.php
 
 # Set Apache service to start on boot:
-systemctl enable httpd
+sudo systemctl enable httpd
 
 # Start Apache:
-systemctl start httpd
+sudo systemctl start httpd

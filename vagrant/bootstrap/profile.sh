@@ -5,7 +5,7 @@ UPDATE
 
 MESSAGE "Profile Enhancements"
 
-yum --assumeyes install \
+sudo yum --assumeyes install \
   bash-completion \
   curl
 
