@@ -134,7 +134,7 @@ Vagrant.configure(2) do |config|
     })
   )
 
-  # Installing Apache Tomcat Server:
+  # Apache Tomcat Server:
   config.vm.synced_folder(
     './tomcat',
     '/var/lib/tomcat/webapps',
@@ -143,10 +143,19 @@ Vagrant.configure(2) do |config|
     })
   )
 
-  # Apache HTTP Server:
+  # Node.js:
   config.vm.synced_folder(
     './node',
     '/var/node',
+    synced_folder_defaults.merge!({
+      # Default overrides?
+    })
+  )
+
+  # Ruby:
+  config.vm.synced_folder(
+    './ruby',
+    '/var/ruby',
     synced_folder_defaults.merge!({
       # Default overrides?
     })

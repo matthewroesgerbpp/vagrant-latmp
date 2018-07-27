@@ -27,6 +27,12 @@ sudo yum --assumeyes install php-pecl-zip
 # Install PhpMyAdmin package:
 sudo yum --assumeyes install phpmyadmin
 
+# Create and/or empty file:
+sudo truncate --size=0 /etc/httpd/conf.d/phpMyAdmin.conf
+
+# Easy access for vagrant user:
+sudo chown vagrant:vagrant /etc/httpd/conf.d/phpMyAdmin.conf
+
 cat << "EOF" > /etc/httpd/conf.d/phpMyAdmin.conf
 Alias /phpMyAdmin /usr/share/phpMyAdmin
 Alias /phpmyadmin /usr/share/phpMyAdmin
@@ -40,17 +46,23 @@ Alias /phpmyadmin /usr/share/phpMyAdmin
 EOF
 
 # Backup the custom config:
-cp /etc/phpMyAdmin/config.inc.php /etc/phpMyAdmin/config.inc.php.bak
+sudo cp /etc/phpMyAdmin/config.inc.php /etc/phpMyAdmin/config.inc.php.bak
+
+# Easy access for vagrant user:
+sudo chown vagrant:vagrant /etc/phpMyAdmin/config.inc.php
 
 # Add custom settings:
 cat << "EOF" > /etc/phpMyAdmin/config.inc.php
 <?php
+# This file only needs to contain the parameters you want to change from their
+# corresponding default value in `/usr/share/phpMyAdmin/libraries/config.default.php`
 $cfg['blowfish_secret'] = 'k7jBJz9H9}Cb.{V/pCPcGv,J0JEsbGXT';
+$i = 0;
 $i++;
-$cfg['Servers'][\$i]['AllowNoPassword'] = TRUE;
+$cfg['Servers'][$i]['AllowNoPassword'] = TRUE;
 EOF
 
 # Custom configuration:
 # https://stackoverflow.com/a/29598833/922323
-chmod 755 /etc/phpMyAdmin
-chmod 644 /etc/phpMyAdmin/config.inc.php
+sudo chmod 755 /etc/phpMyAdmin
+sudo chmod 644 /etc/phpMyAdmin/config.inc.php

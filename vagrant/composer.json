@@ -1,0 +1,12 @@
+{
+    "name": "vagrant/vagrant",
+    "require": {
+        "twig/twig": "^2.5"
+    },
+    "authors": [
+        {
+            "name": "Bob Jenkins",
+            "email": "bob@b.com"
+        }
+    ]
+}

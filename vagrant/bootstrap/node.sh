@@ -78,13 +78,11 @@ cat << "EOF" > /etc/httpd/conf.d/node.conf
 EOF
 
 # Vagrant shared folders should have done this already:
+sudo mkdir --parents /var/node
 sudo chown -R vagrant:vagrant /var/node
 
 # Remove existing test site directory (if it exists):
-rm \
-  --recursive \
-  --force \
-  /var/node/test
+rm --recursive --force /var/node/test
 
 # Create the test site directory:
 mkdir --parents /var/node/test

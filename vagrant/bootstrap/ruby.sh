@@ -11,19 +11,18 @@ MESSAGE "Installing Ruby"
 #   rubygems
 
 # Required:
-yum --assumeyes install \
+sudo yum --assumeyes install \
   curl \
   gnupg2
 
 # Dependencies required for some versions of Ruby:
-yum --assumeyes install \
+sudo yum --assumeyes install \
   libyaml-devel
   # Others?
 
 # Import public key:
 gpg2 \
   --keyserver hkp://keys.gnupg.net \
-  --homedir /root/.gnupg \
   --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 
 # Refresh keys:
@@ -32,33 +31,15 @@ gpg2 --refresh-keys
 # Trust developers:
 echo 409B6B1796C275462A1703113804BB82D39DC0E3:6: | gpg2 --import-ownertrust # mpapis@gmail.com
 
-# https://github.com/rvm/rvm/blob/master/docs/gpg.md
-# Download and install RVM:
-# curl \
-#   --silent \
-#   --show-error \
-#   --location https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer \
-#   --output ~/rvm-installer \
-#   &&
-# curl \
-#   --silent \
-#   --show-error \
-#   --location https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer.asc \
-#   --output ~/rvm-installer.asc \
-#   &&
-# gpg2 \
-#   --verify ~/rvm-installer.asc \
-#   &&
-# bash ~/rvm-installer
-
-# Download and install RVM:
+# Download and install RVM (single user installtion):
 curl \
   --silent \
   --show-error \
-  --location https://get.rvm.io | bash -s stable
+  --location https://get.rvm.io \
+  | bash -s stable
 
 # Load RVM environment variable:
-source /etc/profile.d/rvm.sh
+source ~/.rvm/scripts/rvm
 
 # Install all Ruby system dependencies:
 rvm requirements
@@ -80,3 +61,33 @@ rvm install ruby-${RUBY_VERSION}
 rvm use ${RUBY_VERSION} --default
 
 ruby --version
+
+# Install Bundler:
+gem install bundler --no-document
+
+#
+# Apache vhost code here …
+#
+
+# Vagrant shared folders should have done this already:
+sudo mkdir --parents /var/ruby
+sudo chown -R vagrant:vagrant /var/ruby
+
+# Create a Gemfile:
+cat << "EOF" > /var/ruby/test/Gemfile
+source 'https://rubygems.org'
+gem 'sinatra', :github => 'sinatra/sinatra'
+EOF
+
+# Create an index file:
+cat << "EOF" > /var/ruby/test/index.rb
+require 'sinatra'
+get '/' do
+  'Hello world!'
+end
+EOF
+
+# bundle exec ruby /var/ruby/test/index.rb
+
+# NEEDS MORE WORK!!!!
+# https://github.com/mhulse/vagrant-latmp/issues/117

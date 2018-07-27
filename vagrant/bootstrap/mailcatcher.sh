@@ -5,13 +5,13 @@ UPDATE
 MESSAGE "Installing MailCatcher"
 
 # Creating `pathmunge` file:
-cat << "EOF" >> /etc/profile.d/local-bin.sh
+sudo cat << "EOF" >> /etc/profile.d/local-bin.sh
 #!/usr/bin/env bash
 pathmunge /usr/local/bin after
 EOF
 
 # Install MailCatcher:
-gem install --no-document mailcatcher
+gem install mailcatcher --no-document
 
 # Enable MailCatcher in php:
 if [ -e /etc/php.ini ]; then
