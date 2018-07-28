@@ -4,8 +4,14 @@ UPDATE
 
 MESSAGE "Installing MailCatcher"
 
+# Create and/or empty file:
+sudo truncate --size=0 /etc/profile.d/local-bin.sh
+
+# Easy access for vagrant user:
+sudo chown vagrant:vagrant /etc/profile.d/local-bin.sh
+
 # Creating `pathmunge` file:
-sudo cat << "EOF" >> /etc/profile.d/local-bin.sh
+cat << "EOF" >> /etc/profile.d/local-bin.sh
 #!/usr/bin/env bash
 pathmunge /usr/local/bin after
 EOF
@@ -15,7 +21,11 @@ gem install mailcatcher --no-document
 
 # Enable MailCatcher in php:
 if [ -e /etc/php.ini ]; then
-  sed --regexp-extended --in-place '/sendmail_path\s+=.*/a sendmail_path = /usr/bin/env catchmail' /etc/php.ini
+  sed \
+  --regexp-extended \
+  --in-place \
+  '/sendmail_path\s+=.*/a sendmail_path = /usr/bin/env catchmail' \
+  /etc/php.ini
 fi
 
 # Start MailCatcher:

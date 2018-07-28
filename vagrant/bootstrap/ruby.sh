@@ -70,7 +70,7 @@ gem install bundler --no-document
 #
 
 # Vagrant shared folders should have done this already:
-sudo mkdir --parents /var/ruby
+sudo mkdir --parents /var/ruby/test
 sudo chown -R vagrant:vagrant /var/ruby
 
 # Create a Gemfile:
@@ -81,9 +81,10 @@ EOF
 
 # Create an index file:
 cat << "EOF" > /var/ruby/test/index.rb
-require 'sinatra'
-get '/' do
-  'Hello world!'
+class HelloWorld
+  def call(env)
+    [200, {"Content-Type" => "text/plain"}, ["Hello world!"]]
+  end
 end
 EOF
 
@@ -91,3 +92,5 @@ EOF
 
 # NEEDS MORE WORK!!!!
 # https://github.com/mhulse/vagrant-latmp/issues/117
+# Passenger for Apache:
+# https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/apache/oss/el7/deploy_app.html
