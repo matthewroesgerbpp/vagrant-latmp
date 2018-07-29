@@ -19,11 +19,9 @@ EOF
 # Install MailCatcher:
 gem install mailcatcher --no-document
 
-# Enable MailCatcher in php:
+# Enable MailCatcher in php (`sed` writes a temp file to root-owned `/etc`, thus the need for `sudo`):
 if [ -e /etc/php.ini ]; then
-  sed \
-  --regexp-extended \
-  --in-place \
+  sudo sed --regexp-extended --in-place \
   '/sendmail_path\s+=.*/a sendmail_path = /usr/bin/env catchmail' \
   /etc/php.ini
 fi
@@ -33,5 +31,5 @@ mailcatcher --ip=0.0.0.0 # http://<ip>:1080/
 
 # Restart Apache:
 if which httpd &> /dev/null; then
-  systemctl restart httpd
+  sudo systemctl restart httpd
 fi

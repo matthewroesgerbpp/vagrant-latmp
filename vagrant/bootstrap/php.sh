@@ -52,7 +52,7 @@ cp --force /usr/share/doc/php-*/php.ini-development /etc/php.ini
 # Easy access for vagrant user:
 sudo chown vagrant:vagrant /etc/php.ini
 
-# Update php settings (`sudo` required as `sed` writes a temp file, thus the need for root privs):
+# Update php settings (`sed` writes a temp file to root-owned `/etc`, thus the need for `sudo`):
 sudo sed --in-place "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php.ini
 sudo sed --in-place "s/display_errors = .*/display_errors = On/" /etc/php.ini
 sudo sed --in-place "s#;date\.timezone.*#date\.timezone = ${PHP_TIMEZONE}#g" /etc/php.ini # Using `#` as delim.
