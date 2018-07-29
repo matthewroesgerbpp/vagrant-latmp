@@ -48,13 +48,13 @@ EOF
 # Custom configuration:
 # https://stackoverflow.com/a/29598833/922323
 sudo chmod 755 /etc/phpMyAdmin
-sudo chmod 644 /etc/phpMyAdmin/config.inc.php.bak
-
-# Backup the custom config:
-sudo cp /etc/phpMyAdmin/config.inc.php /etc/phpMyAdmin/config.inc.php.bak
+sudo chmod 644 /etc/phpMyAdmin/config.inc.php
 
 # Easy access for vagrant user:
 sudo chown vagrant:vagrant /etc/phpMyAdmin/config.inc.php
+
+# Backup the custom config:
+sudo cp /etc/phpMyAdmin/config.inc.php /etc/phpMyAdmin/config.inc.php.bak
 
 # Add custom settings:
 cat << "EOF" > /etc/phpMyAdmin/config.inc.php

@@ -21,10 +21,14 @@ PASSWORD=$(grep 'temporary password' /var/log/mysqld.log | sed 's/.* //g')
 echo "Root password: ${PASSWORD}"
 
 # Update password, remove validator plugin and remove password:
-mysql --user root --password="${PASSWORD}" --connect-expired-password --execute \
-  "ALTER USER USER() IDENTIFIED BY '@JCQZQBgZwY4S0e*KbxU';" \
-  "UNINSTALL PLUGIN validate_password; ALTER USER USER() IDENTIFIED BY '';" \
-  || echo "NOTICE: unable to update password, maybe this has been done before?"
+mysql \
+--user root \
+--password="${PASSWORD}" \
+--connect-expired-password << "EOF" || echo "$(tput setaf 172)NOTICE: Unable to update password!$(tput sgr 0) Maybe this has been done before?"
+  ALTER USER USER() IDENTIFIED BY '@JCQZQBgZwY4S0e*KbxU';
+  UNINSTALL PLUGIN validate_password;
+  ALTER USER USER() IDENTIFIED BY '';
+EOF
 
 # Change root password:
 # mysqladmin -uroot -poldpassword password newpassword

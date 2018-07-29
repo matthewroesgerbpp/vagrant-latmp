@@ -47,7 +47,7 @@ sudo systemctl enable php-fpm
 sudo systemctl start php-fpm
 
 # Use the develpment configuration file (only applicable to php >= 7):
-cp --force /usr/share/doc/php-*/php.ini-development /etc/php.ini
+sudo cp --force /usr/share/doc/php-*/php.ini-development /etc/php.ini
 
 # Easy access for vagrant user:
 sudo chown vagrant:vagrant /etc/php.ini
@@ -61,7 +61,7 @@ sudo sed --in-place "s/max_execution_time.*/max_execution_time = ${PHP_MAX_EXECU
 
 # If not using root as main user:
 if [ -d /var/lib/php/session ]; then
-  chown -R vagrant:vagrant /var/lib/php/session
+  sudo chown -R vagrant:vagrant /var/lib/php/session
 fi
 
 # Check the installed version and available extensions:
