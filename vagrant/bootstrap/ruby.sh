@@ -65,32 +65,59 @@ ruby --version
 # Install Bundler:
 gem install bundler --no-document
 
-#
-# Apache vhost code here …
-#
-
 # Vagrant shared folders should have done this already:
 sudo mkdir --parents /var/ruby/test
 sudo chown -R vagrant:vagrant /var/ruby
 
+# Create a config file:
+cat << "EOF" > /var/ruby/test/config.ru
+require './index'
+run Application
+EOF
+
 # Create a Gemfile:
 cat << "EOF" > /var/ruby/test/Gemfile
 source 'https://rubygems.org'
+gem 'puma', group: :production
 gem 'sinatra', :github => 'sinatra/sinatra'
 EOF
 
 # Create an index file:
 cat << "EOF" > /var/ruby/test/index.rb
-class HelloWorld
-  def call(env)
-    [200, {"Content-Type" => "text/plain"}, ["Hello world!"]]
+require 'sinatra'
+configure { set :server, :puma }
+class Application < Sinatra::Base
+  get '/' do
+    'Hello World!'
   end
 end
 EOF
 
-# bundle exec ruby /var/ruby/test/index.rb
+# Write conf data:
+cat << "EOF" > /etc/httpd/conf.d/ruby.conf
+<VirtualHost *:80>
+  ServerName ruby.local
+  ServerAlias www.ruby.local
+  ErrorLog /var/log/httpd/ruby.local-error.log
+  CustomLog /var/log/httpd/ruby.local-access.log combined
+  ProxyRequests Off
+  ProxyPreserveHost On
+  ProxyPass / http://localhost:9292/ retry=0
+  ProxyPassReverse / http://localhost:9292/
+  ProxyPassReverseCookiePath / /
+  ProxyPassReverseCookieDomain localhost ruby.local
+  Header always set Access-Control-Allow-Origin *
+  Header always set Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"
+  Header always set Access-Control-Max-Age 1000
+  Header always set Access-Control-Allow-Headers "x-requested-with, Content-Type, origin, authorization, accept, client-security-token"
+</VirtualHost>
+EOF
 
-# NEEDS MORE WORK!!!!
-# https://github.com/mhulse/vagrant-latmp/issues/117
-# Passenger for Apache:
-# https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/apache/oss/el7/deploy_app.html
+bundle install \
+--path /var/ruby/test/ \
+--gemfile /var/ruby/test/Gemfile
+
+# Restart Apache:
+if which httpd &> /dev/null; then
+  sudo systemctl restart httpd
+fi
