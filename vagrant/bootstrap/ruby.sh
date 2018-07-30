@@ -20,15 +20,6 @@ sudo yum --assumeyes install \
   libyaml-devel
   # Others?
 
-# Puma needs these:
-sudo yum --assumeyes install \
-  automake \
-  gcc \
-  gcc-c++ \
-  git \
-  kernel-devel \
-  make
-
 # Import public key:
 gpg2 \
   --keyserver hkp://keys.gnupg.net \
@@ -93,14 +84,12 @@ EOF
 # Create a Gemfile:
 cat << "EOF" > /var/ruby/test/Gemfile
 source 'https://rubygems.org'
-gem 'puma', group: :production
 gem 'sinatra', :github => 'sinatra/sinatra'
 EOF
 
 # Create an index file:
 cat << "EOF" > /var/ruby/test/index.rb
 require 'sinatra'
-configure { set :server, :puma }
 class Application < Sinatra::Base
   get '/' do
     'Hello World!'
@@ -128,6 +117,9 @@ cat 2>/dev/null << "EOF" > /etc/httpd/conf.d/ruby.conf || echo "$(tput setaf 172
 </VirtualHost>
 EOF
 
+# This uses git, but we should just check if git installed else install basic git?
+# Ran into conflicts as I install get outside of just using yum in another shell script.
+# Need to rethink how I make these shell scripts indepent of one another (or not).
 bundle install \
 --path /var/ruby/test/ \
 --gemfile /var/ruby/test/Gemfile
