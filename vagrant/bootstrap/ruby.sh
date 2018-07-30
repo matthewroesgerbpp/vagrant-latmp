@@ -20,6 +20,15 @@ sudo yum --assumeyes install \
   libyaml-devel
   # Others?
 
+# Puma needs these:
+sudo yum --assumeyes install \
+  automake \
+  gcc \
+  gcc-c++ \
+  git \
+  kernel-devel \
+  make
+
 # Import public key:
 gpg2 \
   --keyserver hkp://keys.gnupg.net \
@@ -36,7 +45,13 @@ curl \
   --silent \
   --show-error \
   --location https://get.rvm.io \
-  | bash -s stable
+  | bash -s stable --ignore-dotfiles
+  # --ignore-dotfiles = don’t add anything to `*rc`/`*profile`.
+
+# Add to custom profile:
+cat << "EOF" > ~/.bash_vagrant
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+EOF
 
 # Load RVM environment variable:
 source ~/.rvm/scripts/rvm
@@ -93,8 +108,8 @@ class Application < Sinatra::Base
 end
 EOF
 
-# Write conf data:
-cat << "EOF" > /etc/httpd/conf.d/ruby.conf
+# Write conf data to Apache:
+cat 2>/dev/null << "EOF" > /etc/httpd/conf.d/ruby.conf || echo "$(tput setaf 172)NOTICE: Apache not installed!$(tput sgr 0)"
 <VirtualHost *:80>
   ServerName ruby.local
   ServerAlias www.ruby.local
