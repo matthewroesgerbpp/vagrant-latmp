@@ -75,20 +75,27 @@ gem install bundler --no-document
 sudo mkdir --parents /var/ruby/test
 sudo chown -R vagrant:vagrant /var/ruby
 
-# Create a config file:
+# Create a Gemfile:
+cat << "EOF" > /var/ruby/test/Gemfile
+source 'https://rubygems.org'
+gem 'sinatra'
+EOF
+
+# Create a config file (I don’t think this is needed):
 cat << "EOF" > /var/ruby/test/config.ru
+require 'rubygems'
+require 'bundler'
+
+Bundler.require
+
 require './index'
 run Application
 EOF
 
-# Create a Gemfile:
-cat << "EOF" > /var/ruby/test/Gemfile
-source 'https://rubygems.org'
-gem 'sinatra', :github => 'sinatra/sinatra'
-EOF
-
 # Create an index file:
 cat << "EOF" > /var/ruby/test/index.rb
+require 'rubygems'
+require 'bundler/setup'
 require 'sinatra'
 class Application < Sinatra::Base
   get '/' do
@@ -97,8 +104,14 @@ class Application < Sinatra::Base
 end
 EOF
 
+# Create and/or empty file:
+sudo truncate --size=0 /etc/httpd/conf.d/ruby.conf
+
+# Easy access for vagrant user:
+sudo chown vagrant:vagrant /etc/httpd/conf.d/ruby.conf
+
 # Write conf data to Apache:
-cat 2>/dev/null << "EOF" > /etc/httpd/conf.d/ruby.conf || echo "$(tput setaf 172)NOTICE: Apache not installed!$(tput sgr 0)"
+cat << "EOF" > /etc/httpd/conf.d/ruby.conf
 <VirtualHost *:80>
   ServerName ruby.local
   ServerAlias www.ruby.local
@@ -106,8 +119,8 @@ cat 2>/dev/null << "EOF" > /etc/httpd/conf.d/ruby.conf || echo "$(tput setaf 172
   CustomLog /var/log/httpd/ruby.local-access.log combined
   ProxyRequests Off
   ProxyPreserveHost On
-  ProxyPass / http://localhost:9292/ retry=0
-  ProxyPassReverse / http://localhost:9292/
+  ProxyPass / http://localhost:4567/ retry=0
+  ProxyPassReverse / http://localhost:4567/
   ProxyPassReverseCookiePath / /
   ProxyPassReverseCookieDomain localhost ruby.local
   Header always set Access-Control-Allow-Origin *
@@ -117,9 +130,6 @@ cat 2>/dev/null << "EOF" > /etc/httpd/conf.d/ruby.conf || echo "$(tput setaf 172
 </VirtualHost>
 EOF
 
-# This uses git, but we should just check if git installed else install basic git?
-# Ran into conflicts as I install get outside of just using yum in another shell script.
-# Need to rethink how I make these shell scripts indepent of one another (or not).
 bundle install \
 --path /var/ruby/test/ \
 --gemfile /var/ruby/test/Gemfile

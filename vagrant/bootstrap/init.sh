@@ -17,11 +17,11 @@ source /vagrant/bootstrap/nano.sh
 source /vagrant/bootstrap/git.sh
 source /vagrant/bootstrap/mysql.sh
 source /vagrant/bootstrap/http.sh
-source /vagrant/bootstrap/tomcat.sh
-source /vagrant/bootstrap/node.sh
-source /vagrant/bootstrap/php.sh
-source /vagrant/bootstrap/phpmyadmin.sh
-source /vagrant/bootstrap/composer.sh
-source /vargrant/bootstrap/python.sh
-source /vagrant/bootstrap/ruby.sh
-source /vagrant/bootstrap/mailcatcher.sh
+# source /vagrant/bootstrap/tomcat.sh
+# source /vagrant/bootstrap/node.sh
+# source /vagrant/bootstrap/php.sh
+# source /vagrant/bootstrap/phpmyadmin.sh
+# source /vagrant/bootstrap/composer.sh
+# source /vargrant/bootstrap/python.sh
+# source /vagrant/bootstrap/ruby.sh
+# source /vagrant/bootstrap/mailcatcher.sh
