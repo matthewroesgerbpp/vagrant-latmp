@@ -89,6 +89,7 @@ cat << "EOF" > /var/ruby/test/Gemfile
 source 'https://rubygems.org'
 # request -> {nginx,apache} -> Thin -> rack -> Sinatra -> your app
 gem 'thin'
+gem 'rake'
 gem 'sinatra'
 EOF
 
@@ -109,6 +110,32 @@ class Application < Sinatra::Base
   get '/' do
     'Hello World!'
   end
+end
+EOF
+
+# Create a Thin config:
+cat << "EOF" > /var/ruby/test/config.yml
+---
+ environment: production
+ chdir: /var/ruby/test
+ address: 127.0.0.1
+ user: root
+ group: root
+ port: 3000
+ pid: /var/ruby/test/thin.pid
+ rackup: /var/ruby/test/config.ru
+ log: /var/ruby/test/thin.log
+ max_conns: 1024
+ timeout: 30
+ max_persistent_conns: 512
+ daemonize: true
+EOF
+
+# Create a RakeFile:
+cat << "EOF" > /var/ruby/test/RakeFile
+task default: %w[test]
+task :test do
+  bundle exec thin -s 2 -C config.yml -R config.ru start
 end
 EOF
 
@@ -138,17 +165,21 @@ cat << "EOF" > /etc/httpd/conf.d/ruby.conf
 </VirtualHost>
 EOF
 
+# cd /var/ruby/test
+
 # bundle install \
 # --no-deployment \
 # --binstubs \
-# --clean \
-# --path=/var/ruby/test/ \
-# --gemfile=/var/ruby/test/Gemfile
+# --clean
 
-# bundle install --path=/var/ruby/test/ --gemfile=/var/ruby/test/Gemfile
+# http://recipes.sinatrarb.com/p/deployment/lighttpd_proxied_to_thin
+# bundle exec thin -s 2 -C config.yml -R config.ru start
 
-# $ bundle update
+# OR:
+# http://recipes.sinatrarb.com/p/deployment/lighttpd_proxied_to_thin
+# bundle exec rake
 
+# Without thin/rake, this creates a deamon:
 # https://stackoverflow.com/a/27545072/922323
 # bundle exec rackup -p 3000 -E production -D
 
