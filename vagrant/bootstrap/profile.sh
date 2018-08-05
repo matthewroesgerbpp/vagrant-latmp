@@ -9,9 +9,6 @@ sudo yum --assumeyes install \
   bash-completion \
   curl
 
-# Create and/or empty file:
-:> ~/.dircolors
-
 curl \
   --silent \
   --show-error \
@@ -19,9 +16,7 @@ curl \
   https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS \
   --output ~/.dircolors
 
-# Create and/or empty this file:
-:> ~/.bash_vagrant
-
+# Create file and populate:
 cat << "EOF" > ~/.bash_vagrant
 # https://github.com/mhulse/dotfizzles
 eval $(dircolors -b ~/.dircolors)
@@ -56,9 +51,6 @@ grep \
 
 # Reload profile:
 source ~/.bash_profile
-
-# Create and/or empty this file:
-:> ~/.inputrc_vagrant
 
 cat << "EOF" > ~/.inputrc_vagrant
 # READLINE CONFIGURATION FILE

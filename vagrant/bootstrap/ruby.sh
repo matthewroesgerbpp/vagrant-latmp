@@ -39,9 +39,10 @@ curl \
   | bash -s stable --ignore-dotfiles
   # --ignore-dotfiles = don’t add anything to `*rc`/`*profile`.
 
-# Add to custom profile:
-cat << "EOF" > ~/.bash_vagrant
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+# Add `source` line:
+cat << "EOF" >> ~/.bash_vagrant
+  # Load RVM into a shell session *as a function*
+  [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 EOF
 
 # Load RVM environment variable:
@@ -68,6 +69,14 @@ rvm use ${RUBY_VERSION} --default
 
 ruby --version
 
+# Uninstall and re-install for fresh Ruby installation:
+# $ rvm use
+# Using /home/vagrant/.rvm/gems/ruby-2.3.1
+# $ rvm uninstall 2.3.1
+# ruby-2.3.1 - #removing rubies/ruby-2.3.1..
+# ruby-2.3.1 - #removing default ruby interpreter..............
+# $ rvm install 2.3.1
+
 # Install Bundler:
 gem install bundler --no-document
 
@@ -78,24 +87,23 @@ sudo chown -R vagrant:vagrant /var/ruby
 # Create a Gemfile:
 cat << "EOF" > /var/ruby/test/Gemfile
 source 'https://rubygems.org'
+# request -> {nginx,apache} -> Thin -> rack -> Sinatra -> your app
+gem 'thin'
 gem 'sinatra'
 EOF
 
 # Create a config file (I don’t think this is needed):
 cat << "EOF" > /var/ruby/test/config.ru
-require 'rubygems'
-require 'bundler'
-
-Bundler.require
-
-require './index'
-run Application
+# require 'rubygems'
+# require 'bundler'
+# Bundler.require
+# require './index'
+require File.expand_path '../index.rb', __FILE__
+run Sinatra::Application
 EOF
 
 # Create an index file:
 cat << "EOF" > /var/ruby/test/index.rb
-require 'rubygems'
-require 'bundler/setup'
 require 'sinatra'
 class Application < Sinatra::Base
   get '/' do
@@ -130,9 +138,19 @@ cat << "EOF" > /etc/httpd/conf.d/ruby.conf
 </VirtualHost>
 EOF
 
-bundle install \
---path /var/ruby/test/ \
---gemfile /var/ruby/test/Gemfile
+# bundle install \
+# --no-deployment \
+# --binstubs \
+# --clean \
+# --path=/var/ruby/test/ \
+# --gemfile=/var/ruby/test/Gemfile
+
+# bundle install --path=/var/ruby/test/ --gemfile=/var/ruby/test/Gemfile
+
+# $ bundle update
+
+# https://stackoverflow.com/a/27545072/922323
+# bundle exec rackup -p 3000 -E production -D
 
 # Restart Apache:
 if which httpd &> /dev/null; then

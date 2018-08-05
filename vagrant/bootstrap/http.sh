@@ -14,7 +14,7 @@ sudo truncate --size=0 /etc/httpd/conf.d/http.conf
 sudo chown vagrant:vagrant /etc/httpd/conf.d/http.conf
 
 # Write conf data:
-cat << "EOF" > /etc/httpd/conf.d/http.conf
+cat << "EOF" >> /etc/httpd/conf.d/http.conf
 <VirtualHost *:80>
   DocumentRoot /var/www/html/test
   ServerName http.local
@@ -55,7 +55,7 @@ cat << "EOF" > /var/www/html/test/index.php
 </html>
 EOF
 
-# For the hell of it:
+# For the hell of it (`>>` appends and `>` creates/truncates):
 echo "<?=phpinfo()?>" > /var/www/html/test/phpinfo.php
 
 # Set Apache service to start on boot:

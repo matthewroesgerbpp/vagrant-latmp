@@ -19,7 +19,7 @@ sudo yum --assumeyes install \
   bzip2-devel
 
 # Add to custom profile:
-cat << "EOF" > ~/.bash_vagrant
+cat << "EOF" >> ~/.bash_vagrant
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 EOF

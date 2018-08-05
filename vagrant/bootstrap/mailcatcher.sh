@@ -11,7 +11,7 @@ sudo truncate --size=0 /etc/profile.d/local-bin.sh
 sudo chown vagrant:vagrant /etc/profile.d/local-bin.sh
 
 # Creating `pathmunge` file:
-cat << "EOF" >> /etc/profile.d/local-bin.sh
+cat << "EOF" > /etc/profile.d/local-bin.sh
 #!/usr/bin/env bash
 pathmunge /usr/local/bin after
 EOF

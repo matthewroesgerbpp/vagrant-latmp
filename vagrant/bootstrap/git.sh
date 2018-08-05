@@ -21,9 +21,7 @@ sudo yum --assumeyes install https://centos7.iuscommunity.org/ius-release.rpm
 # Install git:
 sudo yum --assumeyes install git2u
 
-# Create and/or empty this file:
-:> ~/.gitconfig_vagrant
-
+# Create and populate file:
 cat << "EOF" > ~/.gitconfig_vagrant
 [alias]
   aliases = config --get-regexp alias
@@ -110,8 +108,8 @@ curl \
   https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh \
   --output ~/.git-prompt.sh
 
-# Add to custom profile:
-cat << "EOF" > ~/.bash_vagrant
+# Append `source` line:
+cat << "EOF" >> ~/.bash_vagrant
 source ~/.git-prompt.sh
 PROMPT_COMMAND='__git_ps1 "\u@\h:\w" "\\\$ "'
 EOF
