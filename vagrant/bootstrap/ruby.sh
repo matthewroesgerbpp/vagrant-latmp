@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck source=/dev/null
 
 UPDATE
 
@@ -91,40 +92,27 @@ source 'https://rubygems.org'
 gem 'thin'
 gem 'rake'
 gem 'sinatra'
+gem 'sinatra-contrib'
 EOF
 
 # Create a config file (I don’t think this is needed):
 cat << "EOF" > /var/ruby/test/config.ru
-# require 'rubygems'
-# require 'bundler'
-# Bundler.require
-# require './index'
 require File.expand_path '../index.rb', __FILE__
-run Sinatra::Application
-EOF
-
-# Create an index file:
-cat << "EOF" > /var/ruby/test/index.rb
-require 'sinatra'
-class Application < Sinatra::Base
-  get '/' do
-    'Hello World!'
-  end
-end
+run Application
 EOF
 
 # Create a Thin config:
 cat << "EOF" > /var/ruby/test/config.yml
 ---
- environment: production
+ environment: development
  chdir: /var/ruby/test
  address: 127.0.0.1
- user: root
- group: root
+ user: vagrant
+ group: vagrant
  port: 3000
- pid: /var/ruby/test/thin.pid
  rackup: /var/ruby/test/config.ru
- log: /var/ruby/test/thin.log
+ pid: /var/ruby/test/tmp/pids/thin.pid
+ log: /var/ruby/test/tmp/logs/thin.log
  max_conns: 1024
  timeout: 30
  max_persistent_conns: 512
@@ -133,10 +121,57 @@ EOF
 
 # Create a RakeFile:
 cat << "EOF" > /var/ruby/test/RakeFile
-task default: %w[test]
-task :test do
-  bundle exec thin -s 2 -C config.yml -R config.ru start
+task default: %w[start]
+desc 'Starts the daemon Thin server'
+task :start do
+  puts "Starting Thin server"
+  system "bundle exec thin --servers=1 --config=config.yml --rackup=config.ru start"
 end
+desc 'Stops the daemon Thin server'
+task :stop do
+  Dir.glob('tmp/pids/*.pid').each do|pid_file|
+    file = File.open(pid_file, 'rb')
+    process_id = file.read.strip
+    puts "Stopping Thin server (process #{process_id})"
+    system "kill -SIGKILL #{process_id}"
+    FileUtils.remove_dir("tmp") if File.directory? "tmp"
+  end
+end
+desc "Restarts the daemon Thin server"
+task :restart do
+  puts "Restarting Thin server"
+  Rake::Task[:stop].invoke
+  Rake::Task[:start].invoke
+end
+EOF
+
+# Sinatra index file:
+cat << "EOF" > /var/ruby/test/index.rb
+require 'sinatra'
+require 'sinatra/reloader'
+class Application < Sinatra::Base
+  configure :development do
+    register Sinatra::Reloader
+  end
+  set :views, File.dirname(__FILE__) + '/'
+  get '/' do
+    erb :index
+  end
+end
+EOF
+
+# Sinatra index template file:
+cat << EOF > /var/ruby/test/index.erb
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>$(ruby --version)</title>
+</head>
+<body>
+<pre>$(rvm info)</pre>
+</body>
+</html>
 EOF
 
 # Create and/or empty file:
@@ -154,8 +189,8 @@ cat << "EOF" > /etc/httpd/conf.d/ruby.conf
   CustomLog /var/log/httpd/ruby.local-access.log combined
   ProxyRequests Off
   ProxyPreserveHost On
-  ProxyPass / http://localhost:4567/ retry=0
-  ProxyPassReverse / http://localhost:4567/
+  ProxyPass / http://localhost:3000/ retry=0
+  ProxyPassReverse / http://localhost:3000/
   ProxyPassReverseCookiePath / /
   ProxyPassReverseCookieDomain localhost ruby.local
   Header always set Access-Control-Allow-Origin *
@@ -165,23 +200,11 @@ cat << "EOF" > /etc/httpd/conf.d/ruby.conf
 </VirtualHost>
 EOF
 
-# cd /var/ruby/test
-
-# bundle install \
-# --no-deployment \
-# --binstubs \
-# --clean
-
-# http://recipes.sinatrarb.com/p/deployment/lighttpd_proxied_to_thin
-# bundle exec thin -s 2 -C config.yml -R config.ru start
-
-# OR:
-# http://recipes.sinatrarb.com/p/deployment/lighttpd_proxied_to_thin
-# bundle exec rake
-
-# Without thin/rake, this creates a deamon:
-# https://stackoverflow.com/a/27545072/922323
-# bundle exec rackup -p 3000 -E production -D
+# https://stackoverflow.com/questions/51692408
+cd /var/ruby/test || exit
+bundle install
+bundle exec rake start
+cd - || exit
 
 # Restart Apache:
 if which httpd &> /dev/null; then
