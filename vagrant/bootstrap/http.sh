@@ -14,14 +14,15 @@ sudo truncate --size=0 /etc/httpd/conf.d/http.conf
 sudo chown vagrant:vagrant /etc/httpd/conf.d/http.conf
 
 # Write conf data:
-cat << "EOF" >> /etc/httpd/conf.d/http.conf
+cat << "EOF" > /etc/httpd/conf.d/http.conf
+ServerName localhost
 <VirtualHost *:80>
-  DocumentRoot /var/www/html/test
+  DocumentRoot /var/www/html
   ServerName http.local
   ServerAlias www.http.local
   ErrorLog /var/log/httpd/http.local-error.log
   CustomLog /var/log/httpd/http.local-access.log combined
-  <Directory /var/www/html/test>
+  <Directory /var/www/html>
     IndexOptions +FancyIndexing NameWidth=*
     Options -Indexes +Includes +FollowSymLinks +MultiViews
     AllowOverride All
@@ -32,31 +33,23 @@ cat << "EOF" >> /etc/httpd/conf.d/http.conf
 </VirtualHost>
 EOF
 
-# Vagrant shared folders should have done this already:
-sudo chown -R vagrant:vagrant /var/www
-
-# Remove existing test site directory (if it exists):
-rm --recursive --force /var/www/html/test
-
-# Create the test site directory:
-mkdir --parents /var/www/html/test
+# Vagrant shared folders should have made parents already:
+sudo mkdir --parents /var/www/html
+sudo chown -R vagrant:vagrant /var/www/html
 
 # Create an index file:
-cat << "EOF" > /var/www/html/test/index.php
-<!DOCTYPE html>
+cat << EOF > /var/www/html/index.html
+<!doctype html>
 <html>
-  <head>
-    <title>Apache HTTP Server</title>
-  </head>
-  <body>
-    <h3>PHP version: <?=phpversion()?></h3>
-    <p><a href="phpinfo.php">phpinfo</a></p>
-  </body>
+<head>
+<meta charset="utf-8">
+<title>$(rpm -q httpd)</title>
+</head>
+<body>
+<pre>$(apachectl -V)</pre>
+</body>
 </html>
 EOF
-
-# For the hell of it (`>>` appends and `>` creates/truncates):
-echo "<?=phpinfo()?>" > /var/www/html/test/phpinfo.php
 
 # Set Apache service to start on boot:
 sudo systemctl enable httpd

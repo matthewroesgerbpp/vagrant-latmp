@@ -77,7 +77,7 @@ cat << "EOF" > /etc/httpd/conf.d/node.conf
 </VirtualHost>
 EOF
 
-# Vagrant shared folders should have done this already:
+# Vagrant shared folders should have made parents already:
 sudo mkdir --parents /var/node
 sudo chown -R vagrant:vagrant /var/node
 

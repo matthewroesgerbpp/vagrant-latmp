@@ -127,7 +127,7 @@ Vagrant.configure(2) do |config|
 
   # Apache HTTP Server:
   config.vm.synced_folder(
-    './http',
+    './www',
     '/var/www',
     synced_folder_defaults.merge!({
       # Default overrides?

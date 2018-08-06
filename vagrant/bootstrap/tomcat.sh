@@ -41,7 +41,7 @@ EOF
 # … and add this:
 # Environment=JAVA_HOME=/usr/lib/jvm/jre
 
-# Vagrant shared folders should have done this already:
+# Vagrant shared folders should have made parents already:
 sudo chown -R vagrant:vagrant /var/lib/tomcat/webapps
 
 # Remove existing test site directory (if it exists):

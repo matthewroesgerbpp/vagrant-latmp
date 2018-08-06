@@ -81,7 +81,10 @@ ruby --version
 # Install Bundler:
 gem install bundler --no-document
 
-# Vagrant shared folders should have done this already:
+# Remove existing test site directory (if it exists):
+rm --recursive --force /var/ruby/test
+
+# Vagrant shared folders should have made parents already:
 sudo mkdir --parents /var/ruby/test
 sudo chown -R vagrant:vagrant /var/ruby
 

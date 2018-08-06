@@ -68,6 +68,46 @@ fi
 php --version
 php --modules
 
+# Create and/or empty file:
+sudo truncate --size=0 /etc/httpd/conf.d/php.conf
+
+# Easy access for vagrant user:
+sudo chown vagrant:vagrant /etc/httpd/conf.d/php.conf
+
+# Write conf data (`/var/php` seems like a better spot for PHP apps!):
+cat << "EOF" > /etc/httpd/conf.d/php.conf
+<VirtualHost *:80>
+  DocumentRoot /var/www/test
+  ServerName php.local
+  ServerAlias www.php.local
+  ErrorLog /var/log/httpd/php.local-error.log
+  CustomLog /var/log/httpd/php.local-access.log combined
+  <Directory /var/www/test>
+    IndexOptions +FancyIndexing NameWidth=*
+    Options -Indexes +Includes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+    Require all granted
+  </Directory>
+</VirtualHost>
+EOF
+
+# Vagrant shared folders should have made parents already:
+sudo mkdir --parents /var/www
+sudo chown -R vagrant:vagrant /var/www
+
+# Remove existing test site directory (if it exists):
+rm --recursive --force /var/www/test
+
+# Create the test site directory:
+mkdir --parents /var/www/test
+
+# Create an index file:
+cat << "EOF" > /var/www/test/index.php
+<?=phpinfo()?>
+EOF
+
 # Restart Apache:
 if which httpd &> /dev/null; then
   sudo systemctl restart httpd
